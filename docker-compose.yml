@@ -1,0 +1,54 @@
+# ##################################################
+# #                                                #
+# #          REALIZADO POR DIGITALLFRAN            #
+# #         https://digitallfran.co                #
+# #                                                #
+# ##################################################
+
+#Recomiendo leer los comentarios OJO#
+services:
+  traefik:
+    ## -----------------https://digitallfran.co--------------------- ##
+    image: traefik:v3.4.1 # Version estable. Si eres experto, puedes usar traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - digitallfran_net # Cambia este nombre si quieres usar una red diferente
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data:/data
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.network=digitallfran_net"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.email=${CORREO}"
+      - "--certificatesresolvers.myresolver.acme.storage=/data/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--log.level=INFO"
+      - "--log.filepath=/data/traefik.log"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/data/access.log"
+      - "--accesslog.format=json"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`${DOMINIO}`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik-dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${CLAVE_AUTH}"
+
+networks:
+  digitallfran_net: # Cambia este nombre si lo modificaste arriba
+    external: true
