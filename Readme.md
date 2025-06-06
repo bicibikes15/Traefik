@@ -1,4 +1,4 @@
-# Traefik Docker Stack by DigitalLFRAN
+# Traefik Docker Stack by DigitallFran
 
 Stack de Traefik v3 listo para producción, asegurado con autenticación básica y configurado para usar Let's Encrypt para certificados SSL automáticos. Este proyecto está diseñado para ser seguro, robusto y fácil de entender.
 
